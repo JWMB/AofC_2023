@@ -106,13 +106,15 @@ let getNextDay =
     let currentMax = Seq.max getDayTypes.Keys
     currentMax + 1
 
+let dayDesignator day = $"D{day.ToString().PadLeft(2, '0')}"
+
 let addDayTest day =
     let currDir = new DirectoryInfo(Directory.GetCurrentDirectory())
     let testDir = currDir.Parent.GetDirectories("*.Tests")[0]
     if testDir.Exists then
         let testFile = testDir.GetFiles("Tests.fs")[0]
         if testFile.Exists then
-            let dayTypeName = $"D{day}"
+            let dayTypeName = dayDesignator day
             let content = File.ReadAllText(testFile.FullName)
             if content.Contains($"``{dayTypeName}``") = false then
                 let templateTests = Regex.Split(content, Regex.Escape("[<Fact>]")) |> Array.filter (fun f -> f.Contains("template"))
@@ -129,7 +131,7 @@ let createDayFile day =
     if template.IsNone then
         printfn $"template not found"
     else
-        let dNext = $"D{day}"
+        let dNext = dayDesignator day
         let content = File.ReadAllText(template.Value.FullName).Replace("module Template", $"module {dNext}")
         let codeFilepath = template.Value.FullName.Replace(templateName, $"{dNext}.fs")
         if File.Exists(codeFilepath) = false then File.WriteAllText(codeFilepath, content)
@@ -153,7 +155,7 @@ let main argv =
         | _ ->
             printfn $"Command not found {arg}"
     else
-        let method = D1.part2
+        let method = D01.part2
         let day = 1
         // TODO: how to figure out which day method corresponds to? D4.part2.GetType() returns a local runtime type, not associated with the target
         // Roslyn would work but seems overkill

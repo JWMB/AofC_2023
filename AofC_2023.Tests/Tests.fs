@@ -12,17 +12,17 @@ let ``template`` () =
 
 
 [<Fact>]
-let ``D1`` () =
+let ``D01`` () =
     let input = """
 1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
 treb7uchet
 """
-    let pt1 = D1.part1 input
+    let pt1 = D01.part1 input
     Assert.Equal(142, pt1)
     
-    Assert.Equal(28, D1.part2 "two1nineight")
+    Assert.Equal(28, D01.part2 "two1nineight")
 
     let input2 = """
 two1nine
@@ -33,5 +33,5 @@ xtwone3four
 zoneight234
 7pqrstsixteen
 """
-    let pt2 = D1.part2 input2
+    let pt2 = D01.part2 input2
     Assert.Equal(281, pt2)

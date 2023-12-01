@@ -1,4 +1,4 @@
-﻿module D1
+﻿module D01
 
 open Tools
 open System.Text.RegularExpressions
@@ -33,12 +33,12 @@ let part2 input =
             | _ -> int str
 
     let parseRow input =
-        let first = Regex.Match(input, $"{pattern}")
-        let last = Regex.Match(input, $"{pattern}(?!.*{pattern})")
+        let first = Regex.Match(input, pattern)
+        let last = Regex.Match(input, pattern, RegexOptions.RightToLeft)
         let matches = [| first; last |]
         let digits = matches |> Array.map (fun f -> makeDigit(f.Value))
         firstLast digits
 
     let rowValues = Parsing.parseRows input parseRow
     let result = Seq.sum rowValues
-    result // 55309 too high
+    result
