@@ -30,3 +30,11 @@ jobs:
         git config --global user.name "GitHub Action"
         git commit README.md -m 'Re-build README.md' || echo "No changes to commit"
         git push origin || echo "No changes to commit"
+    - name: Merge to main (if develop)
+      if: contains(github.ref, 'develop')
+      run: |
+        git fetch --unshallow
+        git checkout main
+        git pull
+        git merge --no-ff develop -m "Auto-merge develop to main"
+        git push
