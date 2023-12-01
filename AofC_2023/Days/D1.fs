@@ -17,11 +17,6 @@ let part1 input =
     let parseRow input =
         let digits = Regex.Replace(input, @"\D", "") |> Seq.toArray
         firstLast digits
-        //let firstLastX = 
-        //    match digits.Length with
-        //     | 0 -> "0"
-        //     | _ -> $"{digits[0]}{digits[digits.Length - 1]}" // WTF? works in debugger but not in code!? $"{digits[0]}{digits[^1]}"
-        //firstLastX |> int
 
     let rowValues = Parsing.parseRows input parseRow
     Seq.sum rowValues
