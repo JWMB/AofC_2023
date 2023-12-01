@@ -20,8 +20,8 @@ let findFileInParents2 filename =
     let currDir = new DirectoryInfo(Directory.GetCurrentDirectory())
     findFileInParents currDir (fun dir -> dir.GetFiles(filename) |> Array.tryHead)
 
-let slnDir = (findFileInParents2 "AofC_2022.sln").Value.Directory
-let projDir = slnDir.GetDirectories("AofC_2022").[0]
+let slnDir = (findFileInParents2 "AofC_2023.sln").Value.Directory
+let projDir = slnDir.GetDirectories("AofC_2023").[0]
 
 let getTypeFilePath (type_: Type) suffix = 
     let dir = projDir.GetDirectories("Days")[0];
@@ -151,8 +151,8 @@ let main argv =
         | _ ->
             printfn $"Command not found {arg}"
     else
-        let method = D1.part1
-        let day = 16
+        let method = D1.part2
+        let day = 1
         // TODO: how to figure out which day method corresponds to? D4.part2.GetType() returns a local runtime type, not associated with the target
         // Roslyn would work but seems overkill
         let dayType = getDayTypes[day]
