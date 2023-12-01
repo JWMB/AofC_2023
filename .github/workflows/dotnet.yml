@@ -24,7 +24,7 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: README
-      run: |        
+      run: | # make sure to enable Settings -> Actions -> General -> Workflow permissions -> Read and write permissions
         dotnet run --project ./AofC_2023/AofC_2023.fsproj -- generate_readme
         git config --global user.email "jonas.beckeman@gmail.com"
         git config --global user.name "GitHub Action"

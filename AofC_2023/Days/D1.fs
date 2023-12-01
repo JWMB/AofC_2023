@@ -19,7 +19,8 @@ let part1 input =
         firstLast digits
 
     let rowValues = Parsing.parseRows input parseRow
-    Seq.sum rowValues
+    let result = Seq.sum rowValues
+    result
 
 let part2 input =
     let digitWords = "zero one two three four five six seven eight nine".Split ' '
@@ -32,15 +33,11 @@ let part2 input =
             | _ -> int str
 
     let parseRow input =
-        let optionalFinal = Regex.Match(input, $"{pattern}$")
-        let matches = Regex.Matches(input, pattern) |> Seq.toArray
-        let matches = 
-            if optionalFinal.Success && optionalFinal.Value <> (matches |> Array.last).Value then
-                [| optionalFinal |] |> Array.append matches
-            else
-                matches
-        let values = matches |> Array.map (fun f -> makeDigit(f.Value))
-        firstLast values
+        let first = Regex.Match(input, $"{pattern}")
+        let last = Regex.Match(input, $"{pattern}(?!.*{pattern})")
+        let matches = [| first; last |]
+        let digits = matches |> Array.map (fun f -> makeDigit(f.Value))
+        firstLast digits
 
     let rowValues = Parsing.parseRows input parseRow
     let result = Seq.sum rowValues
