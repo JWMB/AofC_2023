@@ -50,3 +50,13 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
     Assert.Equal(2286, D02.part2 input)
 
 
+
+
+[<Fact>]
+let ``D03`` () =
+    let input = """
+"""
+    Assert.Equal(0, D03.part1 input)
+    Assert.Equal(0, D03.part2 input)
+
+
