@@ -142,6 +142,7 @@ let createDayFile day =
 
 [<EntryPoint>]
 let main argv =
+    //let argv = ["create_nextday"]
     if argv.Length > 0 then
         let arg = argv[0]
         match arg with
@@ -155,8 +156,8 @@ let main argv =
         | _ ->
             printfn $"Command not found {arg}"
     else
-        let method = D01.part2
-        let day = 1
+        let method = D02.part1
+        let day = 2
         // TODO: how to figure out which day method corresponds to? D4.part2.GetType() returns a local runtime type, not associated with the target
         // Roslyn would work but seems overkill
         let dayType = getDayTypes[day]
