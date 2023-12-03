@@ -4,55 +4,48 @@ open Tools
 open Geometry
 open System.Text.RegularExpressions
 
-type ValueType = | Number of int | Symbol of char
-type Item = { Coordinates: Vector2D[]; Value: ValueType }
-
-// TODO: the above Item construct is not great - would be easier with something like this:
-// but can't figure out how to .map to the union (e.g. if f % 2 = 0 then Part else Symbol)
-//type Part = { Value: int; Coordinates: Vector2D[] }
-//type Symbol = { Value: char; Coordinate: Vector2D}
-//type PartOrSymbol = 
-//    | Part of Part
-//    | Symbol of Symbol
+type Part = { Value: int; Coordinates: Vector2D[] }
+type Symbol = { Value: char; Coordinate: Vector2D }
+type PartOrSymbol = 
+    | Part of Part
+    | Symbol of Symbol
 
 let constructMap input =
+    let groupNameDigits = "digits"
+    let groupNameSymbol = "symbol"
     let parseRow index str =
-        let matches = Regex.Matches(str, @"((?<digits>\d+)|(?<symbol>[^.]))")
+        let matches = Regex.Matches(str, @$"((?<{groupNameDigits}>\d+)|(?<{groupNameSymbol}>[^.]))")
                         |> Seq.toArray
         matches |> Array.map (fun m ->
-                                let group = if m.Groups["digits"].Success then m.Groups["digits"] else m.Groups["symbol"]
-                                { 
-                                    Coordinates = group.Value |> Seq.mapi (fun i f -> { x = i + group.Index; y = index }) |> Seq.toArray
-                                    Value = if group.Name = "digits" then ValueType.Number (int group.Value) else ValueType.Symbol group.Value[0]
-                                }
+                                let group = if m.Groups[groupNameDigits].Success then m.Groups[groupNameDigits] else m.Groups[groupNameSymbol]
+                                if group.Name = groupNameDigits then
+                                    PartOrSymbol.Part { Value = int group.Value; Coordinates = group.Value |> Seq.mapi (fun i _ -> { x = i + group.Index; y = index }) |> Seq.toArray }
+                                else
+                                    PartOrSymbol.Symbol { Value = group.Value[0]; Coordinate = { x = group.Index; y = index } }
                                )
 
     let all = Parsing.parseRowsIndex input parseRow |> Array.reduce Array.append
 
-    let isNumber valx = 
-        match valx with
-        | ValueType.Number s -> true
-        | _ -> false
-
     {|
-        Parts = all |> Array.filter (fun f -> isNumber f.Value);
-        Symbols = all |> Array.filter (fun f -> false = isNumber f.Value)
+        Parts = all |> Array.choose (fun f -> match f with | PartOrSymbol.Part x -> Some(x) | _ -> None)
+        Symbols = all |> Array.choose (fun f -> match f with | PartOrSymbol.Symbol x -> Some(x) | _ -> None)
     |}
 
 let part1 input =
     let map = constructMap input
 
-    let parts = map.Parts
-    let symbolPositions = map.Symbols |> Array.map (fun f -> f.Coordinates[0])
+    let symbolPositions = map.Symbols |> Array.map (fun f -> f.Coordinate)
 
     let maxDistance = 1
-    let hasSymbolNearby part symbols =
-        part.Coordinates |> Array.exists (fun pos -> 
-                                   symbols |> Array.exists (fun (xy: Vector2D) -> (pos.sub xy).maxAbs <= maxDistance))
+    let hasSymbolNeaby (coord: Vector2D) = 
+        symbolPositions |> Array.exists (fun (xy: Vector2D) -> (coord.sub xy).maxAbs <= maxDistance)
 
-    let withNearby = parts |> Array.filter (fun part -> hasSymbolNearby part symbolPositions)
+    let hasSymbolNearby part =
+        part.Coordinates |> Array.exists hasSymbolNeaby
 
-    let result = withNearby |> Array.map (fun f -> match f.Value with | ValueType.Number n -> n | _ -> 0) |> Array.sum
+    let partsWithSymbolNearby = map.Parts |> Array.filter (fun part -> hasSymbolNearby part)
+
+    let result = partsWithSymbolNearby |> Array.sumBy (fun f -> f.Value)
     result
     
 let part2 input =
@@ -62,8 +55,8 @@ let part2 input =
 
     let gearSymbolCoordinates =
         map.Symbols
-        |> Array.filter (fun f -> '*' = match f.Value with | ValueType.Symbol s -> s | _ -> '.')
-        |> Array.map (fun f -> f.Coordinates[0])
+        |> Array.filter (fun f -> f.Value = '*')
+        |> Array.map (fun f -> f.Coordinate)
 
     let maxDistance = 1
 
@@ -82,7 +75,7 @@ let part2 input =
     let products =
         gearsWithParts
         |> Array.map (fun f -> f.Parts
-                                |> Array.map (fun p -> match p.Value with | ValueType.Number n -> n | _ -> 1)
+                                |> Array.map (fun p -> p.Value)
                                 |> Array.reduce (fun p c -> p * c)
                       )
 
