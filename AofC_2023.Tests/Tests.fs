@@ -67,6 +67,6 @@ let ``D03`` () =
 .664.598..
 """
     Assert.Equal(4361, D03.part1 input)
-    //Assert.Equal(0, D03.part2 input)
+    Assert.Equal(467835, D03.part2 input)
 
 
