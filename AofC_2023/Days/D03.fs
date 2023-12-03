@@ -7,10 +7,13 @@ open System.Text.RegularExpressions
 type ValueType = | Number of int | Symbol of char
 type Item = { Coordinates: Vector2D[]; Value: ValueType }
 
+// TODO: the above Item construct is not great - would be easier with something like this:
+// but can't figure out how to .map to the union (e.g. if f % 2 = 0 then Part else Symbol)
 //type Part = { Value: int; Coordinates: Vector2D[] }
+//type Symbol = { Value: char; Coordinate: Vector2D}
 //type PartOrSymbol = 
 //    | Part of Part
-//    | Symbol of Vector2D
+//    | Symbol of Symbol
 
 let constructMap input =
     let parseRow index str =
