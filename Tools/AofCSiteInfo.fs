@@ -14,11 +14,19 @@ module AofCSiteInfo =
     let main year day =
         let url = $"https://adventofcode.com/{year}/day/{day}"
         async {
-            let! response = HttpStatic.Client.GetStringAsync(url) |> Async.AwaitTask
-            let m = Regex.Match(response, @": (.+?)?(?=\s*-{2,})")
+            let! result = HttpStatic.Client.GetStringAsync(url) |> Async.AwaitTask |> Async.Catch
+            let response = match result with
+                            | Choice.Choice1Of2 v -> (
+                                let m = Regex.Match(v, @": (.+?)?(?=\s*-{2,})")
+                                if m.Success then m.Value else "N/A"
+                              )
+                            | Choice.Choice2Of2 ex -> (
+                                if ex.Message.Contains("404") then "Not yet available!" else ex.Message
+                              )
+                                    
             let result = {
                 Day = day;
-                Title = if m.Success then m.Groups.[1].Value else "N/A";
+                Title = response;
                 Url = url;
             }
             return result
