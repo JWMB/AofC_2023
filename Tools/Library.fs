@@ -18,6 +18,8 @@ module Parsing =
 
     let parseRows (input: string) rowParser = 
         input |> cleanWithTrim |> RxCurry.split "\n" |> Array.map rowParser
+    let parseRowsIndex (input: string) rowParser = 
+        input |> cleanWithTrim |> RxCurry.split "\n" |> Array.mapi rowParser
 
 module ArrayEx =
     let exceptLast arr = arr |> Array.rev |> Array.tail |> Array.rev

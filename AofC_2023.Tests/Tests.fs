@@ -55,8 +55,18 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 [<Fact>]
 let ``D03`` () =
     let input = """
+467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..
 """
-    Assert.Equal(0, D03.part1 input)
-    Assert.Equal(0, D03.part2 input)
+    Assert.Equal(4361, D03.part1 input)
+    //Assert.Equal(0, D03.part2 input)
 
 
