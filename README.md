@@ -47,7 +47,7 @@ let part2 input =
     result
 ```
 
-Result (in `8`ms): `55291`
+Result (in `9`ms): `55291`
 ## [Day 2 - Cube Conundrum](https://adventofcode.com/2023/day/2)
 [Source](/AofC_2023/Days/D02.fs) | [Input](/AofC_2023/Days/D02.txt)  
 ### part1
@@ -86,7 +86,7 @@ let part1 input =
     result
 ```
 
-Result (in `19`ms): `2476`
+Result (in `20`ms): `2476`
 ### part2
 ```FSharp
 let part2 input =
@@ -106,4 +106,64 @@ let part2 input =
     result
 ```
 
-Result (in `8`ms): `54911`
+Result (in `9`ms): `54911`
+## [Day 3 - Gear Ratios](https://adventofcode.com/2023/day/3)
+[Source](/AofC_2023/Days/D03.fs) | [Input](/AofC_2023/Days/D03.txt)  
+### part1
+```FSharp
+let part1 input =
+    let map = constructMap input
+
+    let parts = map.Parts
+    let symbolPositions = map.Symbols |> Array.map (fun f -> f.Coordinates[0])
+
+    let maxDistance = 1
+    let hasSymbolNearby part symbols =
+        part.Coordinates |> Array.exists (fun pos -> 
+                                   symbols |> Array.exists (fun (xy: Vector2D) -> (pos.sub xy).maxAbs <= maxDistance))
+
+    let withNearby = parts |> Array.filter (fun part -> hasSymbolNearby part symbolPositions)
+
+    let result = withNearby |> Array.map (fun f -> match f.Value with | ValueType.Number n -> n | _ -> 0) |> Array.sum
+    result
+```
+
+Result (in `94`ms): `557705`
+### part2
+```FSharp
+let part2 input =
+    let map = constructMap input
+
+    let parts = map.Parts
+
+    let gearSymbolCoordinates =
+        map.Symbols
+        |> Array.filter (fun f -> '*' = match f.Value with | ValueType.Symbol s -> s | _ -> '.')
+        |> Array.map (fun f -> f.Coordinates[0])
+
+    let maxDistance = 1
+
+    let partsNearby coord =
+        parts
+        |> Array.filter (fun p ->
+                        p.Coordinates
+                        |> Array.exists (fun pos -> (pos.sub coord).maxAbs <= maxDistance)
+                        )
+        
+    let gearsWithParts =
+        gearSymbolCoordinates 
+        |> Array.map (fun f -> {| Loc = f; Parts = partsNearby f; |})
+        |> Array.filter (fun f -> f.Parts.Length = 2)
+
+    let products =
+        gearsWithParts
+        |> Array.map (fun f -> f.Parts
+                                |> Array.map (fun p -> match p.Value with | ValueType.Number n -> n | _ -> 1)
+                                |> Array.reduce (fun p c -> p * c)
+                      )
+
+    let result = products |> Array.sum
+    result
+```
+
+Result (in `107`ms): `84266818`
