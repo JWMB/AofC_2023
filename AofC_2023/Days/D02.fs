@@ -45,17 +45,14 @@ let part1 input =
             Color.blue => 14
         ] |> makeMap
 
-    let exceedsMax color count =
-        count > maxByColor[color]
-
     let getExceedsMax colorCounts = 
         colorCounts
         |> Map.toArray
-        |> Array.filter (fun (color, count) -> exceedsMax color count)
+        |> Array.filter (fun (color, count) -> count > maxByColor[color])
 
     let anyTurnExceedsMax colorCounts = 
-        let a = getExceedsMax colorCounts 
-        a |> Array.length > 0
+        getExceedsMax colorCounts 
+        |> Array.length > 0
 
     let rows = Parsing.parseRows input parseRow
 
@@ -72,13 +69,17 @@ let part2 input =
     let rows = Parsing.parseRows input parseRow
 
     let maxOf map1 map2 = 
-        merge map1 map2 (fun key (v1: int, v2: int) -> Math.Max(v1, v2))
+        merge map1 map2 (fun _ (v1: int, v2: int) -> Math.Max(v1, v2))
         
     let minCountsOfRow row =
         row.Turns
         |> Array.reduce (fun p c -> maxOf p c)
 
-    let rowValue row = minCountsOfRow row |> Map.toArray |> Array.map (fun (_, cnt) -> cnt) |> Array.reduce (fun p c -> p * c)
+    let rowValue row =
+        minCountsOfRow row
+        |> Map.toArray
+        |> Array.map (fun (_, cnt) -> cnt)
+        |> Array.reduce (fun p c -> p * c)
 
     let rowValues = rows |> Array.map (fun r -> rowValue r)
     let result = rowValues |> Array.sum
