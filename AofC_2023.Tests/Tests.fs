@@ -83,3 +83,13 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11
     Assert.Equal(30, D04.part2 input)
 
 
+
+
+[<Fact>]
+let ``D05`` () =
+    let input = """
+"""
+    Assert.Equal(0, D05.part1 input)
+    Assert.Equal(0, D05.part2 input)
+
+
