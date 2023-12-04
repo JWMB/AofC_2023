@@ -22,7 +22,7 @@ let part1 input =
     result
 ```
 
-Result (in `13`ms): `55607`
+Result (in `10`ms): `55607`
 ### part2
 ```FSharp
 let part2 input =
@@ -47,7 +47,7 @@ let part2 input =
     result
 ```
 
-Result (in `8`ms): `55291`
+Result (in `5`ms): `55291`
 ## [Day 2 - : Cube Conundrum](https://adventofcode.com/2023/day/2)
 [Source](/AofC_2023/Days/D02.fs) | [Input](/AofC_2023/Days/D02.txt)  
 ### part1
@@ -83,7 +83,7 @@ let part1 input =
     result
 ```
 
-Result (in `19`ms): `2476`
+Result (in `12`ms): `2476`
 ### part2
 ```FSharp
 let part2 input =
@@ -107,7 +107,7 @@ let part2 input =
     result
 ```
 
-Result (in `9`ms): `54911`
+Result (in `6`ms): `54911`
 ## [Day 3 - : Gear Ratios](https://adventofcode.com/2023/day/3)
 [Source](/AofC_2023/Days/D03.fs) | [Input](/AofC_2023/Days/D03.txt)  
 ### part1
@@ -130,7 +130,7 @@ let part1 input =
     result
 ```
 
-Result (in `95`ms): `557705`
+Result (in `61`ms): `557705`
 ### part2
 ```FSharp
 let part2 input =
@@ -168,24 +168,45 @@ let part2 input =
     result
 ```
 
-Result (in `101`ms): `84266818`
-## [Day 4 - Not yet available!](https://adventofcode.com/2023/day/4)
+Result (in `78`ms): `84266818`
+## [Day 4 - : Scratchcards](https://adventofcode.com/2023/day/4)
 [Source](/AofC_2023/Days/D04.fs) | [Input](/AofC_2023/Days/D04.txt)  
 ### part1
 ```FSharp
 let part1 input =
     let rows = Parsing.parseRows input parseRow
-    let result = 0
+
+    let cardCorrectValues row =
+        Set.intersect (Set.ofArray row.Winning) (Set.ofArray row.Mine) |> Set.toArray
+
+    let calcPoints correctValues =
+        let exponent = (correctValues |> Array.length) - 1
+        if exponent = -1 then 0 else int (2.0 ** exponent)
+
+    let rowPoints = rows |> Array.map (fun f -> cardCorrectValues f |> calcPoints)
+    let result = rowPoints |> Array.sum
     result
 ```
 
-Result (in `0`ms): `0`
+Result (in `8`ms): `25183`
 ### part2
 ```FSharp
 let part2 input =
     let rows = Parsing.parseRows input parseRow
-    let result = 0
+    let cardCounts = rows |> Array.map (fun f -> 1) //(fun f -> (f.Id, 1)) |> Map.ofArray 
+
+    let cardNumCorrectValues row =
+        Set.intersect (Set.ofArray row.Winning) (Set.ofArray row.Mine) |> Set.count
+
+
+    rows |> Array.iteri (fun rowIndex row ->
+                    let numCorrect = cardNumCorrectValues row
+                    let copiesOfThisCard = cardCounts.[rowIndex]
+                    [| 1..numCorrect|] |> Array.iter (fun i -> cardCounts.[rowIndex + i] <- cardCounts.[rowIndex + i] + copiesOfThisCard)
+                )
+
+    let result = cardCounts |> Array.sum
     result
 ```
 
-Result (in `0`ms): `0`
+Result (in `6`ms): `5667240`
