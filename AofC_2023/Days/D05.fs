@@ -54,7 +54,7 @@ type Map = { Header: string; Transforms: Transform array } with
     member this.apply value =
         let exitFunc org modified = org <> modified
         applyManyPartials value (this.Transforms |> Array.map(fun t -> t.apply)) (Some(exitFunc)) |> Seq.last
-    member this.appy start length =
+    //member this.appy start length =
         
 
 let parseInput (input: string) =
