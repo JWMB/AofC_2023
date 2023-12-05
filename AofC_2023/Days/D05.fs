@@ -9,6 +9,11 @@ type Transform = { Src: int64; Dst: int64; Length: int64 } with
     member this.apply value =
         let isInRange = value >= this.Src && value < this.Src + this.Length
         if isInRange then value - this.Src + this.Dst else value
+    member this.partition start length =
+        let under = start - this.Src
+        let within = 0
+        let above = 0
+        {| Inside = (0, 1); Outside = [| (0, 1); (0, 1) |] |}
 
 //let applyMany value functions exitPredicate =
 //    let rec loop value funcs =
@@ -49,6 +54,8 @@ type Map = { Header: string; Transforms: Transform array } with
     member this.apply value =
         let exitFunc org modified = org <> modified
         applyManyPartials value (this.Transforms |> Array.map(fun t -> t.apply)) (Some(exitFunc)) |> Seq.last
+    member this.appy start length =
+        
 
 let parseInput (input: string) =
     let input = input.Replace("\r", "\n")
@@ -84,6 +91,22 @@ let part1 (input: string) =
     result
     
 let part2 input =
-    let rows = Parsing.parseRows input parseRow
-    let result = 0
+    0
+
+let part2x input =
+    let sections = parseInput input
+    let initialState = Regex.Matches(sections[0].Content |> String.concat " ", @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+    //let initialState = initialState |> Array.chunkBySize 2 |> Array.map (fun arr -> [| arr[0]..arr[1]+arr[0]|]) |> Array.reduce Array.append
+
+    let parseRange (str: string) =
+        let matches = Regex.Matches(str, @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+        { Src = matches[1]; Dst = matches[0]; Length = matches[2] }
+
+    let maps = sections |> Array.tail |> Array.map (fun f -> { Header = f.Header; Transforms = f.Content |> Array.map parseRange })
+
+    let applyMaps value (maps: Map array) =
+        applyManyPartials value (maps |> Array.map (fun m -> m.apply)) None |> Seq.toArray
+
+    let final = initialState |> Array.map (fun value -> applyMaps value maps)
+    let result = final |> Array.map (fun f -> f |> Array.last) |> Array.min
     result

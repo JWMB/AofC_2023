@@ -122,7 +122,7 @@ humidity-to-location map:
 60 56 37
 56 93 4
 """
-    Assert.Equal(35, D05.part1 input)
-    Assert.Equal(0, D05.part2 input)
+    Assert.Equal(35, D05.part1 input |> int)
+    Assert.Equal(0, D05.part2 input |> int)
 
 
