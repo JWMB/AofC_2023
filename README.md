@@ -22,7 +22,7 @@ let part1 input =
     result
 ```
 
-Result (in `10`ms): `55607`
+Result (in `13`ms): `55607`
 ### part2
 ```FSharp
 let part2 input =
@@ -47,7 +47,7 @@ let part2 input =
     result
 ```
 
-Result (in `5`ms): `55291`
+Result (in `8`ms): `55291`
 ## [Day 2 - : Cube Conundrum](https://adventofcode.com/2023/day/2)
 [Source](/AofC_2023/Days/D02.fs) | [Input](/AofC_2023/Days/D02.txt)  
 ### part1
@@ -83,7 +83,7 @@ let part1 input =
     result
 ```
 
-Result (in `12`ms): `2476`
+Result (in `18`ms): `2476`
 ### part2
 ```FSharp
 let part2 input =
@@ -107,7 +107,7 @@ let part2 input =
     result
 ```
 
-Result (in `6`ms): `54911`
+Result (in `9`ms): `54911`
 ## [Day 3 - : Gear Ratios](https://adventofcode.com/2023/day/3)
 [Source](/AofC_2023/Days/D03.fs) | [Input](/AofC_2023/Days/D03.txt)  
 ### part1
@@ -130,7 +130,7 @@ let part1 input =
     result
 ```
 
-Result (in `61`ms): `557705`
+Result (in `87`ms): `557705`
 ### part2
 ```FSharp
 let part2 input =
@@ -168,7 +168,7 @@ let part2 input =
     result
 ```
 
-Result (in `78`ms): `84266818`
+Result (in `76`ms): `84266818`
 ## [Day 4 - : Scratchcards](https://adventofcode.com/2023/day/4)
 [Source](/AofC_2023/Days/D04.fs) | [Input](/AofC_2023/Days/D04.txt)  
 ### part1
@@ -210,3 +210,86 @@ let part2 input =
 ```
 
 Result (in `6`ms): `5667240`
+## [Day 5 - : If You Give A Seed A Fertilizer](https://adventofcode.com/2023/day/5)
+[Source](/AofC_2023/Days/D05.fs) | [Input](/AofC_2023/Days/D05.txt)  
+### part1
+```FSharp
+let part1 (input: string) =
+    let sections = parseInput input
+    let initialState = Regex.Matches(sections[0].Content |> String.concat " ", @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+
+    let parseRange (str: string) =
+        let matches = Regex.Matches(str, @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+        { Src = matches[1]; Dst = matches[0]; Length = matches[2] }
+
+    let maps = sections |> Array.tail |> Array.map (fun f -> { Header = f.Header; Transforms = f.Content |> Array.map parseRange })
+
+    let applyMaps value (maps: Map array) =
+        applyManyPartials value (maps |> Array.map (fun m -> m.apply)) None |> Seq.toArray
+
+    let final = initialState |> Array.map (fun value -> applyMaps value maps)
+    let result = final |> Array.map (fun f -> f |> Array.last) |> Array.min
+    result
+```
+
+Result (in `10`ms): `240320250`
+### part2
+```FSharp
+let part2 (input: string) =
+    0
+
+//let part2 input =
+//    let sections = parseInput input
+//    let initialState = Regex.Matches(sections[0].Content |> String.concat " ", @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+//    //let initialState = initialState |> Array.chunkBySize 2 |> Array.map (fun arr -> [| arr[0]..arr[1]+arr[0]|]) |> Array.reduce Array.append
+
+//    let parseRange (str: string) =
+//        let matches = Regex.Matches(str, @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+//        { Src = matches[1]; Dst = matches[0]; Length = matches[2] }
+
+//    let maps = sections |> Array.tail |> Array.map (fun f -> { Header = f.Header; Transforms = f.Content |> Array.map parseRange })
+
+//    let applyMaps value (maps: Map array) =
+//        applyManyPartials value (maps |> Array.map (fun m -> m.apply)) None |> Seq.toArray
+
+//    let final = initialState |> Array.map (fun value -> applyMaps value maps)
+//    let result = final |> Array.map (fun f -> f |> Array.last) |> Array.min
+//    result
+```
+
+Result (in `0`ms): `0`
+## [Day 6 - : Wait For It](https://adventofcode.com/2023/day/6)
+[Source](/AofC_2023/Days/D06.fs) | [Input](/AofC_2023/Days/D06.txt)  
+### part1
+```FSharp
+let part1 input =
+    let parseRow (row: string) =
+        let keyValues = row.Split ':'
+        let values = Regex.Matches(keyValues[1], @"\d+") |> Seq.toArray |> Array.map(fun f -> double f.Value)
+        (keyValues[0], values)
+
+    let rows = Parsing.parseRows input parseRow |> Map.ofArray
+    let races = rows["Time"] |> Array.mapi (fun i v -> { Time = v; Distance = rows["Distance"][i]})
+
+    let partial = races |> Array.map (fun race -> numWaysToBeatRecord race.Time race.Distance)
+    let result = partial |> Array.reduce (fun p c -> p * c)
+    result
+```
+
+Result (in `11`ms): `2344708`
+### part2
+```FSharp
+let part2 input =
+    let parseRow (row: string) =
+        let keyValues = row.Split ':'
+        let values = double (keyValues[1].Replace(" ", ""))
+        (keyValues[0], values)
+
+    let rows = Parsing.parseRows input parseRow |> Map.ofArray
+    let race = { Time = rows["Time"]; Distance = rows["Distance"]}
+    let result = numWaysToBeatRecord race.Time race.Distance
+
+    result
+```
+
+Result (in `1`ms): `30125202`
