@@ -126,3 +126,15 @@ humidity-to-location map:
     Assert.Equal(0, D05.part2 input |> int)
 
 
+
+
+[<Fact>]
+let ``D06`` () =
+    let input = """
+Time:      7  15   30
+Distance:  9  40  200
+"""
+    Assert.Equal(288, D06.part1 input)
+    Assert.Equal(71503, D06.part2 input)
+
+

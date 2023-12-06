@@ -90,23 +90,23 @@ let part1 (input: string) =
     let result = final |> Array.map (fun f -> f |> Array.last) |> Array.min
     result
     
-let part2 input =
+let part2 (input: string) =
     0
 
-let part2x input =
-    let sections = parseInput input
-    let initialState = Regex.Matches(sections[0].Content |> String.concat " ", @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
-    //let initialState = initialState |> Array.chunkBySize 2 |> Array.map (fun arr -> [| arr[0]..arr[1]+arr[0]|]) |> Array.reduce Array.append
+//let part2 input =
+//    let sections = parseInput input
+//    let initialState = Regex.Matches(sections[0].Content |> String.concat " ", @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+//    //let initialState = initialState |> Array.chunkBySize 2 |> Array.map (fun arr -> [| arr[0]..arr[1]+arr[0]|]) |> Array.reduce Array.append
 
-    let parseRange (str: string) =
-        let matches = Regex.Matches(str, @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
-        { Src = matches[1]; Dst = matches[0]; Length = matches[2] }
+//    let parseRange (str: string) =
+//        let matches = Regex.Matches(str, @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+//        { Src = matches[1]; Dst = matches[0]; Length = matches[2] }
 
-    let maps = sections |> Array.tail |> Array.map (fun f -> { Header = f.Header; Transforms = f.Content |> Array.map parseRange })
+//    let maps = sections |> Array.tail |> Array.map (fun f -> { Header = f.Header; Transforms = f.Content |> Array.map parseRange })
 
-    let applyMaps value (maps: Map array) =
-        applyManyPartials value (maps |> Array.map (fun m -> m.apply)) None |> Seq.toArray
+//    let applyMaps value (maps: Map array) =
+//        applyManyPartials value (maps |> Array.map (fun m -> m.apply)) None |> Seq.toArray
 
-    let final = initialState |> Array.map (fun value -> applyMaps value maps)
-    let result = final |> Array.map (fun f -> f |> Array.last) |> Array.min
-    result
+//    let final = initialState |> Array.map (fun value -> applyMaps value maps)
+//    let result = final |> Array.map (fun f -> f |> Array.last) |> Array.min
+//    result
