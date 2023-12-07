@@ -9,7 +9,7 @@ type Transform = { Src: int64; Dst: int64; Length: int64 } with
     member this.apply value =
         let isInRange = value >= this.Src && value < this.Src + this.Length
         if isInRange then value - this.Src + this.Dst else value
-    member this.partition start length =
+    member this.partition start endVal =
         let under = start - this.Src
         let within = 0
         let above = 0
@@ -90,13 +90,11 @@ let part1 (input: string) =
     let result = final |> Array.map (fun f -> f |> Array.last) |> Array.min
     result
     
-let part2 (input: string) =
+let part2 input =
+    let sections = parseInput input
+    //let initialState = Regex.Matches(sections[0].Content |> String.concat " ", @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+    //let initialState = initialState |> Array.chunkBySize 2 |> Array.map (fun arr -> (arr[0], arr[1]+arr[0])) //|> Array.reduce Array.append
     0
-
-//let part2 input =
-//    let sections = parseInput input
-//    let initialState = Regex.Matches(sections[0].Content |> String.concat " ", @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
-//    //let initialState = initialState |> Array.chunkBySize 2 |> Array.map (fun arr -> [| arr[0]..arr[1]+arr[0]|]) |> Array.reduce Array.append
 
 //    let parseRange (str: string) =
 //        let matches = Regex.Matches(str, @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
