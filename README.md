@@ -168,7 +168,7 @@ let part2 input =
     result
 ```
 
-Result (in `119`ms): `84266818`
+Result (in `109`ms): `84266818`
 ## [Day 4 - : Scratchcards](https://adventofcode.com/2023/day/4)
 [Source](/AofC_2023/Days/D04.fs) | [Input](/AofC_2023/Days/D04.txt)  
 ### part1
@@ -188,7 +188,7 @@ let part1 input =
     result
 ```
 
-Result (in `12`ms): `25183`
+Result (in `15`ms): `25183`
 ### part2
 ```FSharp
 let part2 input =
@@ -232,7 +232,7 @@ let part1 (input: string) =
     result
 ```
 
-Result (in `16`ms): `240320250`
+Result (in `15`ms): `240320250`
 ### part2
 ```FSharp
 let part2 (input: string) =
@@ -299,19 +299,51 @@ Result (in `2`ms): `30125202`
 ```FSharp
 let part1 input =
     let rows = Parsing.parseRows input parseRow
-    let ranked = rows |> Array.sortWith (fun a b -> handComparer a.Cards b.Cards) |> Array.rev |>  Array.mapi (fun i v -> {| Rank = i + 1; Hand = v |})
+
+    let ranked =
+        rows |> Array.sortWith (fun a b -> handComparer a.Cards b.Cards)
+        |> Array.rev
+        |> Array.mapi (fun i v -> {| Rank = i + 1; Hand = v |})
+
     let winnings = ranked |> Array.map (fun v -> v.Rank * v.Hand.Bet)
     let result = winnings |> Array.sum
     result
 ```
 
-Result (in `63`ms): `246163188`
+Result (in `61`ms): `246163188`
 ### part2
 ```FSharp
 let part2 input =
-    let rows = Parsing.parseRows input parseRow
-    let result = 0
+    let rows = Parsing.parseRows input (parseRowWithModifier (fun f -> if f = 11 then 1 else f))
+
+    let optimizeHand hand =
+        let numJokers = hand |> Array.filter (fun f -> f = 1) |> Array.length
+        let replaceJokersWith value = hand |> Array.map (fun f -> if f = 1 then value else f)
+        let whichHasMostOccurrencies = lazy (
+            let sortedByMost = hand
+                            |> Array.filter (fun f -> f > 1)
+                            |> Array.groupBy (fun f -> f)
+                            |> Array.map (fun (k, v) -> (k, v.Length))
+                            |> Array.sortByDescending (fun (k, v) -> v)
+            let count = snd sortedByMost[0]
+            let onlyWithMost = sortedByMost |> Array.filter (fun (k, v) -> v = count) |> Array.map(fun f -> fst f)
+            onlyWithMost |> Array.max
+            )
+
+        match numJokers with
+        | 5 -> hand
+        | 4 | 3 -> replaceJokersWith (hand |> Array.max)
+        | 2 | 1 -> replaceJokersWith whichHasMostOccurrencies.Value
+        | _ -> hand
+
+    let ranked =
+        rows |> Array.sortWith (fun a b -> handComparerWithTypes a.Cards b.Cards (a.Cards |> optimizeHand |> getHandType) (b.Cards |> optimizeHand |> getHandType))
+        |> Array.rev
+        |> Array.mapi (fun i v -> {| Rank = i + 1; Hand = v |})
+
+    let winnings = ranked |> Array.map (fun v -> v.Rank * v.Hand.Bet)
+    let result = winnings |> Array.sum
     result
 ```
 
-Result (in `2`ms): `0`
+Result (in `94`ms): `245794069`
