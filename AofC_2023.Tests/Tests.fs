@@ -138,3 +138,19 @@ Distance:  9  40  200
     Assert.Equal(71503, D06.part2 input)
 
 
+
+
+[<Fact>]
+let ``D07`` () =
+    let input = """
+32T3K 765
+T55J5 684
+KK677 28
+KTJJT 220
+QQQJA 483
+"""
+
+    Assert.Equal(6440, D07.part1 input)
+    Assert.Equal(0, D07.part2 input)
+
+
