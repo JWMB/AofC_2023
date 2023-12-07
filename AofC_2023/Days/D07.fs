@@ -1,6 +1,7 @@
 module D07
 
 open Tools
+open System
 
 // TODO: figure out type definitions
 //type Hand = int array with
@@ -14,8 +15,9 @@ open Tools
 //    member this.X = 0
 
 
-type Rpund = { Cards: int array; Bet: int }
-let parseRow (row: string) =
+type Round = { Cards: int array; Bet: int }
+
+let parseRowWithModifier fMod (row: string) =
     let split = row.Split ' ' 
     { 
         Bet = int split[1];
@@ -29,8 +31,9 @@ let parseRow (row: string) =
                 | 'J' -> 11
                 | 'T' -> 10
                 | other -> int other - 48)
-            |> Seq.toArray
+            |> Seq.toArray |> Array.map fMod
     }
+let parseRow (row: string) = parseRowWithModifier (fun f -> f) row
 
 type HandType =
     | HighCard = 0
@@ -61,9 +64,7 @@ let getHandType hand =
         | 1 -> HandType.FiveOfAKind
         | _ -> failwith "Error"
 
-let handComparer hand1 hand2 =
-    let type1 = getHandType hand1
-    let type2 = getHandType hand2
+let handComparerWithTypes hand1 hand2 type1 type2 =
     let diff = int type2 - int type1
 
     let signOf value
@@ -85,14 +86,51 @@ let handComparer hand1 hand2 =
             loop hand1 hand2
         | v -> v
 
+let handComparer hand1 hand2  =
+    let type1 = getHandType hand1
+    let type2 = getHandType hand2
+    handComparerWithTypes hand1 hand2 type1 type2
+
 let part1 input =
     let rows = Parsing.parseRows input parseRow
-    let ranked = rows |> Array.sortWith (fun a b -> handComparer a.Cards b.Cards) |> Array.rev |>  Array.mapi (fun i v -> {| Rank = i + 1; Hand = v |})
+
+    let ranked =
+        rows |> Array.sortWith (fun a b -> handComparer a.Cards b.Cards)
+        |> Array.rev
+        |> Array.mapi (fun i v -> {| Rank = i + 1; Hand = v |})
+
     let winnings = ranked |> Array.map (fun v -> v.Rank * v.Hand.Bet)
     let result = winnings |> Array.sum
     result
     
 let part2 input =
-    let rows = Parsing.parseRows input parseRow
-    let result = 0
+    let rows = Parsing.parseRows input (parseRowWithModifier (fun f -> if f = 11 then 1 else f))
+
+    let optimizeHand hand =
+        let numJokers = hand |> Array.filter (fun f -> f = 1) |> Array.length
+        let replaceJokersWith value = hand |> Array.map (fun f -> if f = 1 then value else f)
+        let whichHasMostOccurrencies = lazy (
+            let sortedByMost = hand
+                            |> Array.filter (fun f -> f > 1)
+                            |> Array.groupBy (fun f -> f)
+                            |> Array.map (fun (k, v) -> (k, v.Length))
+                            |> Array.sortByDescending (fun (k, v) -> v)
+            let count = snd sortedByMost[0]
+            let onlyWithMost = sortedByMost |> Array.filter (fun (k, v) -> v = count) |> Array.map(fun f -> fst f)
+            onlyWithMost |> Array.max
+            )
+
+        match numJokers with
+        | 5 -> hand
+        | 4 | 3 -> replaceJokersWith (hand |> Array.max)
+        | 2 | 1 -> replaceJokersWith whichHasMostOccurrencies.Value
+        | _ -> hand
+
+    let ranked =
+        rows |> Array.sortWith (fun a b -> handComparerWithTypes a.Cards b.Cards (a.Cards |> optimizeHand |> getHandType) (b.Cards |> optimizeHand |> getHandType))
+        |> Array.rev
+        |> Array.mapi (fun i v -> {| Rank = i + 1; Hand = v |})
+
+    let winnings = ranked |> Array.map (fun v -> v.Rank * v.Hand.Bet)
+    let result = winnings |> Array.sum
     result

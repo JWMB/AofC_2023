@@ -151,6 +151,5 @@ QQQJA 483
 """
 
     Assert.Equal(6440, D07.part1 input)
-    Assert.Equal(0, D07.part2 input)
-
+    Assert.Equal(5905, D07.part2 input)
 
