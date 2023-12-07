@@ -130,7 +130,7 @@ let part1 input =
     result
 ```
 
-Result (in `87`ms): `557705`
+Result (in `89`ms): `557705`
 ### part2
 ```FSharp
 let part2 input =
@@ -168,7 +168,7 @@ let part2 input =
     result
 ```
 
-Result (in `76`ms): `84266818`
+Result (in `119`ms): `84266818`
 ## [Day 4 - : Scratchcards](https://adventofcode.com/2023/day/4)
 [Source](/AofC_2023/Days/D04.fs) | [Input](/AofC_2023/Days/D04.txt)  
 ### part1
@@ -188,7 +188,7 @@ let part1 input =
     result
 ```
 
-Result (in `8`ms): `25183`
+Result (in `12`ms): `25183`
 ### part2
 ```FSharp
 let part2 input =
@@ -209,7 +209,7 @@ let part2 input =
     result
 ```
 
-Result (in `6`ms): `5667240`
+Result (in `10`ms): `5667240`
 ## [Day 5 - : If You Give A Seed A Fertilizer](https://adventofcode.com/2023/day/5)
 [Source](/AofC_2023/Days/D05.fs) | [Input](/AofC_2023/Days/D05.txt)  
 ### part1
@@ -232,7 +232,7 @@ let part1 (input: string) =
     result
 ```
 
-Result (in `10`ms): `240320250`
+Result (in `16`ms): `240320250`
 ### part2
 ```FSharp
 let part2 (input: string) =
@@ -276,7 +276,7 @@ let part1 input =
     result
 ```
 
-Result (in `11`ms): `2344708`
+Result (in `19`ms): `2344708`
 ### part2
 ```FSharp
 let part2 input =
@@ -292,4 +292,26 @@ let part2 input =
     result
 ```
 
-Result (in `1`ms): `30125202`
+Result (in `2`ms): `30125202`
+## [Day 7 - : Camel Cards](https://adventofcode.com/2023/day/7)
+[Source](/AofC_2023/Days/D07.fs) | [Input](/AofC_2023/Days/D07.txt)  
+### part1
+```FSharp
+let part1 input =
+    let rows = Parsing.parseRows input parseRow
+    let ranked = rows |> Array.sortWith (fun a b -> handComparer a.Cards b.Cards) |> Array.rev |>  Array.mapi (fun i v -> {| Rank = i + 1; Hand = v |})
+    let winnings = ranked |> Array.map (fun v -> v.Rank * v.Hand.Bet)
+    let result = winnings |> Array.sum
+    result
+```
+
+Result (in `63`ms): `246163188`
+### part2
+```FSharp
+let part2 input =
+    let rows = Parsing.parseRows input parseRow
+    let result = 0
+    result
+```
+
+Result (in `2`ms): `0`
