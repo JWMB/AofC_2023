@@ -22,7 +22,7 @@ let part1 input =
     result
 ```
 
-Result (in `11`ms): `55607`
+Result (in `10`ms): `55607`
 ### part2
 ```FSharp
 let part2 input =
@@ -47,7 +47,7 @@ let part2 input =
     result
 ```
 
-Result (in `5`ms): `55291`
+Result (in `6`ms): `55291`
 ## [Day 2 : Cube Conundrum](https://adventofcode.com/2023/day/2)
 [Source](/AofC_2023/Days/D02.fs) | [Input](/AofC_2023/Days/D02.txt)  
 ### part1
@@ -130,7 +130,7 @@ let part1 input =
     result
 ```
 
-Result (in `60`ms): `557705`
+Result (in `63`ms): `557705`
 ### part2
 ```FSharp
 let part2 input =
@@ -188,7 +188,7 @@ let part1 input =
     result
 ```
 
-Result (in `11`ms): `25183`
+Result (in `8`ms): `25183`
 ### part2
 ```FSharp
 let part2 input =
@@ -209,7 +209,7 @@ let part2 input =
     result
 ```
 
-Result (in `6`ms): `5667240`
+Result (in `8`ms): `5667240`
 ## [Day 5 : If You Give A Seed A Fertilizer](https://adventofcode.com/2023/day/5)
 [Source](/AofC_2023/Days/D05.fs) | [Input](/AofC_2023/Days/D05.txt)  
 ### part1
@@ -230,15 +230,30 @@ let part1 (input: string) =
     let final = initialState |> Array.map (fun value -> applyMaps value maps)
     let result = final |> Array.map (fun f -> f |> Array.last) |> Array.min
     result
+    
+type Range = { Start: int64; Length: int64; }
 ```
 
-Result (in `11`ms): `240320250`
+Result (in `10`ms): `240320250`
 ### part2
 ```FSharp
 let part2 input =
     let sections = parseInput input
-    //let initialState = Regex.Matches(sections[0].Content |> String.concat " ", @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
-    //let initialState = initialState |> Array.chunkBySize 2 |> Array.map (fun arr -> (arr[0], arr[1]+arr[0])) //|> Array.reduce Array.append
+    let initialState =
+        Regex.Matches(sections[0].Content
+        |> String.concat " ", @"\d+")
+        |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+        |> Array.chunkBySize 2 
+        |> Array.map (fun arr -> { Start = arr[0]; Length = arr[1] })
+
+    let parseRange (str: string) =
+        let matches = Regex.Matches(str, @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+        { Src = matches[1]; Dst = matches[0]; Length = matches[2] }
+
+    let maps = sections |> Array.tail |> Array.map (fun f -> { Header = f.Header; Transforms = f.Content |> Array.map parseRange })
+
+    let ooo = maps[0].applyRange initialState[0].Length initialState[0].Length
+
     0
 
 //    let parseRange (str: string) =
@@ -255,7 +270,7 @@ let part2 input =
 //    result
 ```
 
-Result (in `0`ms): `0`
+Result (in `2`ms): `0`
 ## [Day 6 : Wait For It](https://adventofcode.com/2023/day/6)
 [Source](/AofC_2023/Days/D06.fs) | [Input](/AofC_2023/Days/D06.txt)  
 ### part1
@@ -345,23 +360,147 @@ let part2 input =
 ```
 
 Result (in `65`ms): `245794069`
-## [Day 8 Not yet available!](https://adventofcode.com/2023/day/8)
+## [Day 8 : Haunted Wasteland](https://adventofcode.com/2023/day/8)
 [Source](/AofC_2023/Days/D08.fs) | [Input](/AofC_2023/Days/D08.txt)  
 ### part1
 ```FSharp
 let part1 input =
+    let input = Parsing.cleanWithTrimEmptyLines input
+    let chunks = Regex.Split(input, "\n\n");
+    let turns = chunks[0]
+    let nodes = constructNodes chunks[1]
+
+    let rec loop currentNode stepIndex =
+        let turn = turns[stepIndex % turns.Length]
+        let turnArrIndex = if turn = 'L' then 0 else 1
+        let nextNodeId = nodes[currentNode][turnArrIndex]
+        if nextNodeId = "ZZZ" then stepIndex
+        else loop nextNodeId (stepIndex + 1)
+        
+    let numSteps = 1 + loop "AAA" 0
+    numSteps
+```
+
+Result (in `9`ms): `22411`
+### part2
+```FSharp
+let part2 input =
+    let input = Parsing.cleanWithTrimEmptyLines input
+    let chunks = Regex.Split(input, "\n\n");
+    let turns = chunks[0] |> Seq.toArray |> Array.map (fun turn -> if turn = 'L' then 0 else 1)
+    let nodes = constructNodes chunks[1]
+
+    let endNodes = nodes |> Map.toArray |> Array.map (fun f -> fst f) |> Array.filter (fun f -> f.EndsWith "Z")
+
+    let rec getIndicesWhenAtEnd currentNode stepIndex (visitHistory: System.Collections.Generic.List<System.Tuple<string, int>>) =
+        seq {
+            let indexMod = stepIndex % turns.Length
+            let turn = turns[indexMod]
+            let stateId = (currentNode, indexMod)
+            if visitHistory.Contains stateId then
+                yield stepIndex
+            else
+                visitHistory.Add(stateId)
+
+                let nextNodeId = nodes[currentNode][turn]
+                if endNodes |> Array.contains nextNodeId then // if nextNodeId.EndsWith("Z") then
+                    yield stepIndex
+                yield! getIndicesWhenAtEnd nextNodeId (stepIndex + 1) visitHistory
+        }
+    
+    let initialState = nodes |> Map.toArray |> Array.map (fun (k, _) -> k) |> Array.filter (fun k -> k.EndsWith("A"))
+    
+    let leastCommonDenominator (values: int array) =
+        let factorialize value =
+            let max = int (Math.Sqrt (double value))
+            let rec loop v (den: int) = seq {
+                if den > max then
+                    yield v
+                else if v > 1 then
+                    let isDivisible = v % den = 0
+                    if isDivisible then
+                        yield den
+
+                    let nextDen = den + if isDivisible then 0 else (if den > 2 then 2 else 1)
+                    let nextV = if isDivisible then v / den else v
+                    yield! loop nextV nextDen
+
+            }
+            loop value 2 |> Seq.toArray
+        let valueFactors = values |> Array.map factorialize
+
+        let allDistinctFactors = valueFactors |> Array.reduce Array.append |> Array.distinct
+        let countsByFactor =
+            allDistinctFactors
+            |> Array.map (fun f -> {|
+                                    Factor = f; 
+                                    Counts = valueFactors |> Array.map (fun arr -> arr |> Array.filter (fun v -> v = f) |> Array.length)
+                                    |})
+
+        let common =
+            countsByFactor
+            |> Array.map (fun f -> 
+                    let min = f.Counts |> Array.min
+                    if min = 0 then 1 else f.Factor * min
+                    )
+            |> Array.reduce (fun a b -> a * b)
+        common
+
+    //let aaa = leastCommonDenominator [| 22420; 18115; 13204; 24255; 14434; 16273|]
+    //let aaa = leastCommonDenominator [| 12; 42; 256 *3  |] 
+
+
+    let fullLoops =
+        initialState
+        |> Array.map (fun f -> getIndicesWhenAtEnd f 0 (new System.Collections.Generic.List<System.Tuple<string, int>>()))
+        |> Array.map (fun f -> f |> Seq.toArray)
+        |> Array.map (fun f -> {| Length = f |> Array.last; Goals = f[0..f.Length-2] |})
+    
+    // Example: 
+    // period 6, goal 3 = 3 + 6a
+    //  3 9 15 21 27 33 39
+    // period 4, goal 1 = 1 + 4b
+    //  1 5 9 13 17 21 25 29 33
+    // period 9, goal 5 = 9 + 5c
+    //  5 14 23 32 41
+    // Find first when all 3 are the same
+
+    let longestPeriod = fullLoops |> Array.maxBy(fun f -> f.Length)
+    // Length: 5 / 1, 3
+    let rec findCommon iteration =
+        let adjustedIndices = fullLoops |> Array.map (fun f -> f.Goals |> Array.map (fun x -> x + iteration * f.Length))
+        if true then findCommon iteration + 1
+        else 0
+
+    //findCommon 0
+
+    0
+```
+
+Result (in `16563`ms): `0`
+## [Day 9 : Mirage Maintenance](https://adventofcode.com/2023/day/9)
+[Source](/AofC_2023/Days/D09.fs) | [Input](/AofC_2023/Days/D09.txt)  
+### part1
+```FSharp
+let part1 input =
     let rows = Parsing.parseRows input parseRow
-    let result = 0
+    let lastValues = rows |> Array.map (fun f -> getValueFromEachStep f Array.last)
+    let newLastValues = lastValues |> Array.map (fun a -> a |> Array.sum)
+
+    let result = newLastValues |> Array.sum
     result
 ```
 
-Result (in `0`ms): `0`
+Result (in `10`ms): `1584748274`
 ### part2
 ```FSharp
 let part2 input =
     let rows = Parsing.parseRows input parseRow
-    let result = 0
+    let firstValues = rows |> Array.map (fun f -> getValueFromEachStep f (fun a -> a[0]))
+    let newFirstValues = firstValues  |> Array.map (fun arr -> arr |> Array.rev |> Array.reduce (fun a b -> b - a))
+
+    let result = newFirstValues |> Array.sum
     result
 ```
 
-Result (in `0`ms): `0`
+Result (in `7`ms): `1026`
