@@ -54,7 +54,8 @@ type Map = { Header: string; Transforms: Transform array } with
     member this.apply value =
         let exitFunc org modified = org <> modified
         applyManyPartials value (this.Transforms |> Array.map(fun t -> t.apply)) (Some(exitFunc)) |> Seq.last
-    //member this.appy start length =
+    member this.applyRange start length =
+        (start, length)
         
 
 let parseInput (input: string) =
@@ -90,10 +91,25 @@ let part1 (input: string) =
     let result = final |> Array.map (fun f -> f |> Array.last) |> Array.min
     result
     
+type Range = { Start: int64; Length: int64; }
+
 let part2 input =
     let sections = parseInput input
-    //let initialState = Regex.Matches(sections[0].Content |> String.concat " ", @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
-    //let initialState = initialState |> Array.chunkBySize 2 |> Array.map (fun arr -> (arr[0], arr[1]+arr[0])) //|> Array.reduce Array.append
+    let initialState =
+        Regex.Matches(sections[0].Content
+        |> String.concat " ", @"\d+")
+        |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+        |> Array.chunkBySize 2 
+        |> Array.map (fun arr -> { Start = arr[0]; Length = arr[1] })
+
+    let parseRange (str: string) =
+        let matches = Regex.Matches(str, @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
+        { Src = matches[1]; Dst = matches[0]; Length = matches[2] }
+
+    let maps = sections |> Array.tail |> Array.map (fun f -> { Header = f.Header; Transforms = f.Content |> Array.map parseRange })
+
+    let ooo = maps[0].applyRange initialState[0].Length initialState[0].Length
+
     0
 
 //    let parseRange (str: string) =
