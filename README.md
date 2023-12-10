@@ -22,7 +22,7 @@ let part1 input =
     result
 ```
 
-Result (in `10`ms): `55607`
+Result (in `8`ms): `55607`
 ### part2
 ```FSharp
 let part2 input =
@@ -47,7 +47,7 @@ let part2 input =
     result
 ```
 
-Result (in `6`ms): `55291`
+Result (in `5`ms): `55291`
 ## [Day 2 : Cube Conundrum](https://adventofcode.com/2023/day/2)
 [Source](/AofC_2023/Days/D02.fs) | [Input](/AofC_2023/Days/D02.txt)  
 ### part1
@@ -130,7 +130,7 @@ let part1 input =
     result
 ```
 
-Result (in `63`ms): `557705`
+Result (in `62`ms): `557705`
 ### part2
 ```FSharp
 let part2 input =
@@ -168,7 +168,7 @@ let part2 input =
     result
 ```
 
-Result (in `79`ms): `84266818`
+Result (in `75`ms): `84266818`
 ## [Day 4 : Scratchcards](https://adventofcode.com/2023/day/4)
 [Source](/AofC_2023/Days/D04.fs) | [Input](/AofC_2023/Days/D04.txt)  
 ### part1
@@ -209,7 +209,7 @@ let part2 input =
     result
 ```
 
-Result (in `8`ms): `5667240`
+Result (in `6`ms): `5667240`
 ## [Day 5 : If You Give A Seed A Fertilizer](https://adventofcode.com/2023/day/5)
 [Source](/AofC_2023/Days/D05.fs) | [Input](/AofC_2023/Days/D05.txt)  
 ### part1
@@ -230,8 +230,6 @@ let part1 (input: string) =
     let final = initialState |> Array.map (fun value -> applyMaps value maps)
     let result = final |> Array.map (fun f -> f |> Array.last) |> Array.min
     result
-    
-type Range = { Start: int64; Length: int64; }
 ```
 
 Result (in `10`ms): `240320250`
@@ -244,7 +242,7 @@ let part2 input =
         |> String.concat " ", @"\d+")
         |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
         |> Array.chunkBySize 2 
-        |> Array.map (fun arr -> { Start = arr[0]; Length = arr[1] })
+        |> Array.map (fun arr -> { Start = arr[0]; End = arr[0] + arr[1] })
 
     let parseRange (str: string) =
         let matches = Regex.Matches(str, @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
@@ -252,25 +250,25 @@ let part2 input =
 
     let maps = sections |> Array.tail |> Array.map (fun f -> { Header = f.Header; Transforms = f.Content |> Array.map parseRange })
 
-    let ooo = maps[0].applyRange initialState[0].Length initialState[0].Length
+    //let r = Range.optimize [| { Start = 30; End = 35 }; { Start = 10; End = 20 }; { Start = 5; End = 10 }; { Start = 19; End = 22 } ; { Start = 22; End = 30 } |]
+    //let ooo = maps[0].applyRange { Start = 97; End = 102 }
+    //let ooo = maps[0].applyRange { Start = 98; End = 99 }
+    //let ooo = maps[0].applyRange { Start = 96; End = 97 }
+    //let ooo = maps[0].applyRange { Start = 55; End = 68 }
 
-    0
+    let applyMaps range (maps: Map array) =
+        applyManyPartials [| range |] (maps |> Array.map (fun m -> m.applyRanges)) None |> Seq.toArray |> Array.reduce Array.append
 
-//    let parseRange (str: string) =
-//        let matches = Regex.Matches(str, @"\d+") |> Seq.toArray |> Array.map (fun f -> int64 f.Value)
-//        { Src = matches[1]; Dst = matches[0]; Length = matches[2] }
 
-//    let maps = sections |> Array.tail |> Array.map (fun f -> { Header = f.Header; Transforms = f.Content |> Array.map parseRange })
+    //let initialState = [| { Start = 82; End = 83 }|]
+    let initialState = [| { Start = 79; End = 93 }|]
+    let final = initialState |> Array.map (fun range -> applyMaps range maps) //|> Array.reduce Array.append
+    let result = final |> Array.map (fun f -> f |> Array.last) |> Array.map (fun r -> r.Start) |> Array.min
 
-//    let applyMaps value (maps: Map array) =
-//        applyManyPartials value (maps |> Array.map (fun m -> m.apply)) None |> Seq.toArray
-
-//    let final = initialState |> Array.map (fun value -> applyMaps value maps)
-//    let result = final |> Array.map (fun f -> f |> Array.last) |> Array.min
-//    result
+    0 //result
 ```
 
-Result (in `2`ms): `0`
+Result (in `8`ms): `0`
 ## [Day 6 : Wait For It](https://adventofcode.com/2023/day/6)
 [Source](/AofC_2023/Days/D06.fs) | [Input](/AofC_2023/Days/D06.txt)  
 ### part1
@@ -289,7 +287,7 @@ let part1 input =
     result
 ```
 
-Result (in `11`ms): `2344708`
+Result (in `16`ms): `2344708`
 ### part2
 ```FSharp
 let part2 input =
@@ -305,7 +303,7 @@ let part2 input =
     result
 ```
 
-Result (in `1`ms): `30125202`
+Result (in `2`ms): `30125202`
 ## [Day 7 : Camel Cards](https://adventofcode.com/2023/day/7)
 [Source](/AofC_2023/Days/D07.fs) | [Input](/AofC_2023/Days/D07.txt)  
 ### part1
@@ -323,7 +321,7 @@ let part1 input =
     result
 ```
 
-Result (in `42`ms): `246163188`
+Result (in `63`ms): `246163188`
 ### part2
 ```FSharp
 let part2 input =
@@ -359,7 +357,7 @@ let part2 input =
     result
 ```
 
-Result (in `65`ms): `245794069`
+Result (in `98`ms): `245794069`
 ## [Day 8 : Haunted Wasteland](https://adventofcode.com/2023/day/8)
 [Source](/AofC_2023/Days/D08.fs) | [Input](/AofC_2023/Days/D08.txt)  
 ### part1
@@ -381,7 +379,7 @@ let part1 input =
     numSteps
 ```
 
-Result (in `9`ms): `22411`
+Result (in `15`ms): `22411`
 ### part2
 ```FSharp
 let part2 input =
@@ -477,7 +475,7 @@ let part2 input =
     0
 ```
 
-Result (in `16563`ms): `0`
+Result (in `16234`ms): `0`
 ## [Day 9 : Mirage Maintenance](https://adventofcode.com/2023/day/9)
 [Source](/AofC_2023/Days/D09.fs) | [Input](/AofC_2023/Days/D09.txt)  
 ### part1
@@ -491,7 +489,7 @@ let part1 input =
     result
 ```
 
-Result (in `10`ms): `1584748274`
+Result (in `12`ms): `1584748274`
 ### part2
 ```FSharp
 let part2 input =
