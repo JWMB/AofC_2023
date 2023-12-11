@@ -208,3 +208,38 @@ let ``D09`` () =
     Assert.Equal(2L, D09.part2 input)
 
 
+
+
+[<Fact>]
+let ``D10`` () =
+    let input = """
+7-F7-
+.FJ|7
+SJLL7
+|F--J
+LJ.LJ
+"""
+    Assert.Equal(8, D10.part1 input)
+    Assert.Equal(0, D10.part2 input)
+
+
+
+
+[<Fact>]
+let ``D11`` () =
+    let input = """
+...#......
+.......#..
+#.........
+..........
+......#...
+.#........
+.........#
+..........
+.......#..
+#...#.....
+"""
+    Assert.Equal(0, D11.part1 input)
+    Assert.Equal(0, D11.part2 input)
+
+
