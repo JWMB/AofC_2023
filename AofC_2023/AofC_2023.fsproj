@@ -15,6 +15,9 @@
     <Content Include="Days\D07.txt" />
     <Content Include="Days\D08.txt" />
     <Content Include="Days\D09.txt" />
+    <Content Include="Days\D10.txt" />
+    <Content Include="Days\D10part1.gif" />
+    <Content Include="Days\D11.txt" />
     <Compile Include="Days\D01.fs" />
     <Compile Include="Days\D02.fs" />
     <Compile Include="Days\D03.fs" />
@@ -24,6 +27,8 @@
     <Compile Include="Days\D07.fs" />
     <Compile Include="Days\D08.fs" />
     <Compile Include="Days\D09.fs" />
+    <Compile Include="Days\D10.fs" />
+    <Compile Include="Days\D11.fs" />
     <Compile Include="Days\template.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
