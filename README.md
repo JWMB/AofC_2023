@@ -22,7 +22,7 @@ let part1 input =
     result
 ```
 
-Result (in `8`ms): `55607`
+Result (in `14`ms): `55607`
 ### part2
 ```FSharp
 let part2 input =
@@ -47,7 +47,7 @@ let part2 input =
     result
 ```
 
-Result (in `5`ms): `55291`
+Result (in `8`ms): `55291`
 ## [Day 2 : Cube Conundrum](https://adventofcode.com/2023/day/2)
 [Source](/AofC_2023/Days/D02.fs) | [Input](/AofC_2023/Days/D02.txt)  
 ### part1
@@ -83,7 +83,7 @@ let part1 input =
     result
 ```
 
-Result (in `12`ms): `2476`
+Result (in `19`ms): `2476`
 ### part2
 ```FSharp
 let part2 input =
@@ -107,7 +107,7 @@ let part2 input =
     result
 ```
 
-Result (in `6`ms): `54911`
+Result (in `9`ms): `54911`
 ## [Day 3 : Gear Ratios](https://adventofcode.com/2023/day/3)
 [Source](/AofC_2023/Days/D03.fs) | [Input](/AofC_2023/Days/D03.txt)  
 ### part1
@@ -130,7 +130,7 @@ let part1 input =
     result
 ```
 
-Result (in `62`ms): `557705`
+Result (in `81`ms): `557705`
 ### part2
 ```FSharp
 let part2 input =
@@ -168,7 +168,7 @@ let part2 input =
     result
 ```
 
-Result (in `75`ms): `84266818`
+Result (in `77`ms): `84266818`
 ## [Day 4 : Scratchcards](https://adventofcode.com/2023/day/4)
 [Source](/AofC_2023/Days/D04.fs) | [Input](/AofC_2023/Days/D04.txt)  
 ### part1
@@ -287,7 +287,7 @@ let part1 input =
     result
 ```
 
-Result (in `16`ms): `2344708`
+Result (in `11`ms): `2344708`
 ### part2
 ```FSharp
 let part2 input =
@@ -303,7 +303,7 @@ let part2 input =
     result
 ```
 
-Result (in `2`ms): `30125202`
+Result (in `1`ms): `30125202`
 ## [Day 7 : Camel Cards](https://adventofcode.com/2023/day/7)
 [Source](/AofC_2023/Days/D07.fs) | [Input](/AofC_2023/Days/D07.txt)  
 ### part1
@@ -321,7 +321,7 @@ let part1 input =
     result
 ```
 
-Result (in `63`ms): `246163188`
+Result (in `41`ms): `246163188`
 ### part2
 ```FSharp
 let part2 input =
@@ -357,7 +357,7 @@ let part2 input =
     result
 ```
 
-Result (in `98`ms): `245794069`
+Result (in `66`ms): `245794069`
 ## [Day 8 : Haunted Wasteland](https://adventofcode.com/2023/day/8)
 [Source](/AofC_2023/Days/D08.fs) | [Input](/AofC_2023/Days/D08.txt)  
 ### part1
@@ -379,7 +379,7 @@ let part1 input =
     numSteps
 ```
 
-Result (in `15`ms): `22411`
+Result (in `10`ms): `22411`
 ### part2
 ```FSharp
 let part2 input =
@@ -475,7 +475,7 @@ let part2 input =
     0
 ```
 
-Result (in `16234`ms): `0`
+Result (in `15971`ms): `0`
 ## [Day 9 : Mirage Maintenance](https://adventofcode.com/2023/day/9)
 [Source](/AofC_2023/Days/D09.fs) | [Input](/AofC_2023/Days/D09.txt)  
 ### part1
@@ -489,7 +489,7 @@ let part1 input =
     result
 ```
 
-Result (in `12`ms): `1584748274`
+Result (in `10`ms): `1584748274`
 ### part2
 ```FSharp
 let part2 input =
@@ -502,3 +502,131 @@ let part2 input =
 ```
 
 Result (in `7`ms): `1026`
+## [Day 10 : Pipe Maze](https://adventofcode.com/2023/day/10)
+[Source](/AofC_2023/Days/D10.fs) | [Input](/AofC_2023/Days/D10.txt)  
+### part1
+```FSharp
+let part1 input =
+    let ss = symbols |> Array.map (fun f -> (f.Symbol, f.Connector)) |> Map.ofArray
+    let parseRow row =
+        let getSymbol c = 
+            let c = if ss.ContainsKey(c) then c else '.'
+            ss[c]
+        row |> Seq.map (fun c -> getSymbol c) |> Seq.toArray
+
+    let rows = Parsing.parseRows input (fun row -> row |> Seq.toArray)
+
+    let findFirstCoordinate (char: char) =
+        let found = rows |> Array.mapi (fun y r -> 
+                                             let index = r |> Array.tryFindIndex ((=) char)
+                                             match index with
+                                             | None -> None
+                                             | Some(x) -> Some({ x = x; y = y})
+                                       ) |> Array.filter (fun f -> f.IsSome)
+        if found.Length = 0 then None
+        else found[0]
+
+
+    let start = findFirstCoordinate 'S'
+    if start.IsNone then failwith "Start not found"
+    let grid = Parsing.parseRows input parseRow
+
+    let costGrid = grid |> Array.map (fun row -> row |> Array.map (fun _ -> -1))
+
+    //let rec loop (coord: Vector2D) (visited: Vector2D array) =
+    //    let coordinatePreviousCost = costGrid[coord.y][coord.x]
+    //    let continueLoop = coordinatePreviousCost < 0 || coordinatePreviousCost > visited.Length
+
+    //    if continueLoop then
+    //        costGrid[coord.y][coord.x] <- visited.Length
+
+    //        let cell = grid[coord.y][coord.x]
+    //        let notVisited = cell.Connections |> Array.except visited
+    //        let visited = [| coord |] |> Array.append visited
+    //        if notVisited.Length > 0 then
+    //            for diff in notVisited do
+    //                loop (coord.add diff) visited
+
+    let coloringSequence = new System.Collections.Generic.List<(SixLabors.ImageSharp.Color * Vector2D)>();
+    let precalcGrid = grid |> Array.mapi (fun y row -> row |> Array.mapi (fun x v -> v.Connections |> Array.map (fun c -> c.add {x = x; y = y})))
+    let walkPipe start lastCoord =
+        let mutable continueLooping = true
+        let mutable coord = start
+        let mutable last = lastCoord
+        let mutable numSteps = 0
+        while continueLooping do
+            let cell = precalcGrid[coord.y][coord.x]
+            let next = cell |> Array.except [| last |]
+            let cost = costGrid[coord.y][coord.x]
+            numSteps <- numSteps + 1
+            if cost < 0 || cost > numSteps then
+                costGrid[coord.y][coord.x] <- numSteps
+                let hLength = 2000
+                let hue = (float32 (numSteps % hLength)) / (float32 hLength)
+                let lLength = 50000
+                let l = (float32 (numSteps % lLength)) / (float32 lLength)
+                let (r, g, b) = hsl2rgb hue 0.5f (0.3f + 0.6f*l)
+                let to255 fl = byte (255f * fl)
+                let color = new SixLabors.ImageSharp.Color(new SixLabors.ImageSharp.PixelFormats.Rgba32(to255 r, to255 g, to255 b)) //255uy, 0uy, (byte)(numSteps % 256)))
+                coloringSequence.Add (color, coord)
+                continueLooping <- next.Length > 0 && next[0] <> start
+                if continueLooping then
+                    last <- coord
+                    coord <- next[0]
+            else
+                continueLooping <- false
+
+    let debugGrid gridWithCosts =
+        gridWithCosts |> Array.map (fun row -> row |> Array.map (fun v -> if v < 0 then ' ' else 'x') |> System.String) |> String.concat "\n"
+    
+
+    let actualStarts =
+        [|0..3|]
+        |> Array.map directionToVector
+        |> Array.map start.Value.add 
+        |> Array.filter (fun f -> f.x >= 0 && f.y >= 0)
+        |> Array.filter (fun f -> precalcGrid[f.y][f.x] |> Array.contains start.Value)
+
+    costGrid[start.Value.y][start.Value.x] <- 0
+    for actualStart in actualStarts do
+        walkPipe actualStart start.Value
+
+    //let path = "Days/D10part1.gif"
+    //if false = System.IO.File.Exists path then
+    //    createAnimation path { x = grid[0].Length; y = grid.Length } (coloringSequence |> List.ofSeq)
+
+    let result = costGrid |> Array.reduce Array.append |> Array.filter (fun f -> f >= 0) |> Array.max
+    result
+```
+![visualization](/AofC_2023/Days/D10part1.gif)  
+Result (in `49`ms): `6890`
+### part2
+```FSharp
+let part2 input =
+    let parseRow row = [| row |]
+    let rows = Parsing.parseRows input parseRow
+    let result = 0
+    result
+```
+
+Result (in `0`ms): `0`
+## [Day 11 : Cosmic Expansion](https://adventofcode.com/2023/day/11)
+[Source](/AofC_2023/Days/D11.fs) | [Input](/AofC_2023/Days/D11.txt)  
+### part1
+```FSharp
+let part1 input =
+    let rows = Parsing.parseRows input parseRow
+    let result = 0
+    result
+```
+
+Result (in `0`ms): `0`
+### part2
+```FSharp
+let part2 input =
+    let rows = Parsing.parseRows input parseRow
+    let result = 0
+    result
+```
+
+Result (in `0`ms): `0`
