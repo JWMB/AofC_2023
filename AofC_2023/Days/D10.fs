@@ -169,9 +169,9 @@ let part1 input =
     for actualStart in actualStarts do
         walkPipe actualStart start.Value
 
-    let path = "Days/D10part1.gif"
-    if false = System.IO.File.Exists path then
-        createAnimation path { x = grid[0].Length; y = grid.Length } (coloringSequence |> List.ofSeq)
+    //let path = "Days/D10part1.gif"
+    //if false = System.IO.File.Exists path then
+    //    createAnimation path { x = grid[0].Length; y = grid.Length } (coloringSequence |> List.ofSeq)
 
     let result = costGrid |> Array.reduce Array.append |> Array.filter (fun f -> f >= 0) |> Array.max
     result
